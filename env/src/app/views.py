@@ -12,6 +12,42 @@ import json
 import time
 from rest_framework.views import APIView 
 from django.urls import reverse
+################################################
+from django.shortcuts import render
+from django.shortcuts import render,redirect
+from django.contrib.auth import authenticate,login,logout
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
+# Create your views here.
+
+
+def accesPage(request):
+    #######################
+    
+   # user = User.objects.create_user('kvmkvm', 'kvmkvm')
+   # user.save()
+
+    #######################
+    #recuperation des donnees
+    if request.method == "POST":
+        nom=request.POST.get('username')
+        passwd=request.POST.get('password')
+        user=authenticate(request,username=nom,password=passwd)
+        # si l'utilisateur est existe
+        if user is not None:
+            login(request,user)
+            return redirect("/")
+        else:
+            messages.info(request,"il y a une erreur le comte n'existe pas ")
+    context={}
+    return render(request,'acces.html')
+
+def logOut(request):
+    logout(request)
+    return redirect("/acces")
+#################################################
 
 class hostusage(APIView):
     """
@@ -20,6 +56,7 @@ class hostusage(APIView):
     authentication_classes=[]
     permission_classes=[]
 
+   
     def get(self,request,format=None):
         points = 10
         datasets = {}
@@ -75,7 +112,7 @@ class hostusage(APIView):
         response.cookies['mem'] = datasets['mem']
         response.write(data)
         return response
-
+@login_required(login_url='/acces')
 def home(request):
     test = ""
     try:
@@ -111,7 +148,7 @@ def home(request):
         
     return render(request,"home.html",context)
 
-
+@login_required(login_url='/acces')
 def instances(request):
     """
     Instances block
@@ -181,7 +218,7 @@ def instances(request):
     return render(request,"vmachines.html",context)
 
 """network"""
-
+@login_required(login_url='/acces')
 def networks(request):
     errors = []
 
@@ -199,7 +236,7 @@ def networks(request):
     }
     return render(request,"networks.html",context)
 
-
+@login_required(login_url='/acces')
 def network(request,pool):
 
     """
@@ -253,7 +290,7 @@ def network(request,pool):
     print(context)
     return render(request,"network.html",context)
 
-
+@login_required(login_url='/acces')
 def storage(request,pool):
     errors=[]
 
@@ -320,7 +357,7 @@ def storage(request,pool):
     }
 
     return render(request,'storage.html',context)
-
+@login_required(login_url='/acces')
 def storages(request):
     errors=[]
 
